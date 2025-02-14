@@ -1,5 +1,5 @@
-import 'package:flowcash/pages/historial_page.dart';
-import 'package:flowcash/pages/home_page.dart';
+import 'package:flowcash/pages/home/historial_page.dart';
+import 'package:flowcash/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -44,8 +44,8 @@ class MyHomePage extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
-            HomePage(), // Página de inicio
-            HistoricalPage(), // Página de historial
+            HomePage(), 
+            HistoricalPage(), 
           ],
         ),
       ),

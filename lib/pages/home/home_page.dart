@@ -13,7 +13,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   DateTime? startDate;
   DateTime? endDate;
   List<Map<String, dynamic>> expenses = [];
-  String selectedTransactionType = 'Gasto'; // Default transaction type is 'Gasto'
+  String selectedTransactionType = 'Gasto'; 
 
   final TextEditingController detailController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
@@ -27,15 +27,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Future<void> _saveExpenses() async {
+  
+  if ( startDate  == null || endDate == null){
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Por favor, selecciona un rango de fechas valido')),
+
+    );
+    return;
+  }
+
   final prefs = await SharedPreferences.getInstance();
 
-  // Convertir la lista de gastos a JSON
   String jsonExpenses = jsonEncode(expenses);
 
-  // Guardar los gastos como una cadena JSON
   await prefs.setString('expenses', jsonExpenses);
 
-  // Guardar las fechas de inicio y fin
   await prefs.setString('startDate', startDate?.toIso8601String() ?? '');
   await prefs.setString('endDate', endDate?.toIso8601String() ?? '');
 
@@ -76,21 +82,32 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void _addExpense() {
-    if (detailController.text.isNotEmpty && amountController.text.isNotEmpty) {
-      setState(() {
-        expenses.add({
-          'startDate': startDate,
-          'endDate': endDate,
-          'detail': detailController.text,
-          'amount': double.parse(amountController.text),
-          'type': selectedTransactionType,
-          'date': DateTime.now().toIso8601String(),
-        });
-      });
-      detailController.clear();
-      amountController.clear();
+  if (detailController.text.isNotEmpty && amountController.text.isNotEmpty) {
+    // Verificar si las fechas están seleccionadas
+    if (startDate == null || endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, selecciona un rango de fechas válido.')),
+      );
+      return; // No agregar el gasto si las fechas no son válidas
     }
+
+    setState(() {
+      expenses.add({
+        'startDate': startDate,
+        'endDate': endDate,
+        'detail': detailController.text,
+        'amount': double.parse(amountController.text),
+        'type': selectedTransactionType,
+        'date': DateTime.now().toIso8601String(),
+      });
+    });
+
+    // Limpiar los campos
+    detailController.clear();
+    amountController.clear();
   }
+}
+
 
   void _deleteExpense(Map<String, dynamic> expense) {
     setState(() {
@@ -142,7 +159,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 const SizedBox(height: 3),
                 Row(
                   children: [
-                    const Text('Tipo de transacción: '),
+                    const Text('Tipo de transacción:'),
                     DropdownButton<String>(
                       value: selectedTransactionType,
                       onChanged: (String? newValue) {
